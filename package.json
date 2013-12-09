@@ -1,0 +1,26 @@
+{
+  "name": "hfn",
+  "version": "0.0.1",
+  "description": "hot fucking noodles -- the f2e development flow.",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@code.dapps.douban.com:yaofeng/hfn.git"
+  },
+  "keywords": [
+    "build"
+  ],
+  "author": "Keith Yao",
+  "license": "unknow",
+  "dependencies": {
+    "coffee-script": "~1.6.3",
+    "union": "~0.3.8",
+    "connect": "~2.11.2",
+    "proxy-middleware": "~0.5.0",
+    "flask-router": "0.0.4",
+    "underscore": "~1.5.2"
+  }
+}

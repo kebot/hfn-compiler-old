@@ -1,0 +1,31 @@
+#!/usr/bin/env coffee
+
+doc = """
+Usage: hfn [options]
+       hfn server [<path>] [options]
+
+-h --help                     Show this.
+-v --verbose                  Print more text.
+--port [port], -p [port]      Print less text.
+"""
+path = require 'path'
+
+{docopt} = require 'docopt'
+hfn = require '../src/index'
+
+options = docopt(doc, {
+  argv: process.argv[2..],
+  help: false,
+  version: '0.0.1'})
+
+# console.debug(options)
+
+if options.server
+  root = path.resolve(options['<path>'] or '')
+  port = options['--port'] or 8964
+
+  hfn.server({
+    root: root
+  }).listen(port)
+  console.log 'Start listening:', port
+

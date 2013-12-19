@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "hot fucking noodles -- the f2e development flow.",
   "main": "index.js",
+  "bin": {
+      "hfn": "./bin/hfn"
+  },
   "scripts": {
     "test": "make test"
   },

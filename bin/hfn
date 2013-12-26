@@ -7,6 +7,8 @@ Usage: hfn [options]
 -h --help                     Show this.
 -v --verbose                  Print more text.
 --port [port], -p [port]      Print less text.
+--css [css_path]              your css folder
+--js [js_path]                your js folder
 """
 path = require 'path'
 
@@ -25,7 +27,9 @@ if options.server
   port = options['--port'] or 8964
 
   hfn.server({
-    root: root
+    root: path.resolve(options['<path>'] or '')
+    js_path: options['--js'] or 'js'
+    css_path: options['--css'] or 'css'
   }).listen(port)
   console.log 'Start listening:', port
 

@@ -13,11 +13,16 @@ url = require('url')
 
 # language helper
 _ = require('underscore')
+Q = require('q')
+FS = require('q-io/fs')
+async = require('async')
+
 
 # union/connect and other helper modules
 union = require('union')
 connect = require('connect')
 proxy = require('proxy-middleware')
+
 
 factory = (options)->
   router = require('flask-router')()
@@ -38,8 +43,8 @@ factory = (options)->
   })
 
   # For example, compile CoffeeScript on the fly
-  router.get '/js/<path:filePath>.js', (req, res)->
-    filePath = path.join(ROOT, '/js/', req.params.filePath + '.coffee')
+  router.get "#{options.js_path}<path:filePath>.js", (req, res)->
+    filePath = path.join(ROOT, options.js_path, req.params.filePath + '.coffee')
 
     fs.readFile filePath, (err, data)->
       if err
@@ -58,15 +63,53 @@ factory = (options)->
 
   exec = (require 'child_process').exec
 
-  router.get '/css/<path:filePath>.css', (req, res)->
-    filePath = path.join(ROOT, '/css/', req.params.filePath + '.scss')
-
-    exec(['sass', filePath].join(' '), (error, stdout, stderr)->
+  scss_compiler = (source_path)->
+    deferred = Q.defer()
+    exec(['sass', source_path].join(' '), (error, stdout, stderr)->
       if error
-        console.error error
-        return (req.emit 'next')
-      res.write(stdout)
-      res.end()
+        deferred.reject error
+      else
+        deferred.resolve stdout
+    )
+    return deferred.promise
+
+  styl_compiler = (source_path)->
+    deferred = Q.defer()
+    stylus = require 'stylus'
+    FS.read(source_path).then((source)->
+      stylus.render source.toString(), (err, css)->
+        if err
+          deferred.reject err
+        else
+          deferred.resolve css
+    , deferred.reject)
+    return deferred.promise
+
+  router.get "/#{options.css_path}/<path:filePath>.css", (req, res)->
+    # add cache later
+    async.detect(
+      # arr
+      [['scss', scss_compiler], ['styl', styl_compiler]]
+      # iterator(item, callback)
+      , ([ext, compiler], resultToBe)->
+        sourcePath = path.join(ROOT, options.css_path, req.params.filePath + '.' + ext)
+        console.log sourcePath
+        FS.exists(sourcePath).then (exists)->
+          if not exists
+            console.log sourcePath, 'not exists'
+            return resultToBe(false)
+          compiler(sourcePath).then((css)->
+            res.writeHead(200, {'Content-Type': 'text/stylesheet'})
+            res.write(css)
+            res.end()
+            resultToBe(true)
+          , (err)->
+            resultToBe(false)
+          )
+      # result
+      , (result)->
+        if not result
+          req.emit 'next'
     )
 
   # CDN Proxy
@@ -78,8 +121,8 @@ factory = (options)->
         referer: 'http://douban.fm'
     }))(this.req, this.res)
 
+  app.router = router
   return app
 
 exports.server = factory
-
 

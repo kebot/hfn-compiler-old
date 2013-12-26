@@ -4,7 +4,7 @@
   "description": "hot fucking noodles -- the f2e development flow.",
   "main": "index.js",
   "bin": {
-      "hfn": "./bin/hfn"
+    "hfn": "./bin/hfn"
   },
   "scripts": {
     "test": "make test"
@@ -24,6 +24,11 @@
     "connect": "~2.11.2",
     "proxy-middleware": "~0.5.0",
     "flask-router": "0.0.4",
-    "underscore": "~1.5.2"
+    "underscore": "~1.5.2",
+    "async": "~0.2.9",
+    "q": "~0.9.7",
+    "q-io": "~1.10.6",
+    "docopt": "~0.4.0",
+    "stylus": "~0.41.3"
   }
 }
